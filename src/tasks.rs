@@ -3,7 +3,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
 use std::fs::{File, OpenOptions};
-use std::io::{BufReader, Error, ErrorKind, Result, Seek, SeekFrom};
+use std::io::{Error, ErrorKind, Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -30,8 +30,7 @@ impl fmt::Display for Task {
 
 fn collect_tasks(mut file: &File) -> Result<Vec<Task>> {
     file.seek(SeekFrom::Start(0))?; // rewind the file before
-    let reader = BufReader::new(file);
-    let tasks = match serde_json::from_reader(reader) {
+    let tasks = match serde_json::from_reader(file) {
         Ok(tasks) => tasks,
         Err(e) if e.is_eof() => Vec::new(),
         Err(e) => Err(e)?,
